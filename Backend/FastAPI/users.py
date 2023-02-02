@@ -54,10 +54,6 @@ async def user(user: User):
         users_list.append(user)
 
 
-@app.put("/user/")
-async def user():
-
-
 
 def search_user(id:int):
     users = filter(lambda user: user.id == id, users_list)
