@@ -46,6 +46,18 @@ async def user(id: int):
     return search_user(id)
 
 
+@app.post("/user/")
+async def user(user: User):
+    if type(search_user(user.id)) == User:
+        return {"Error":"El usuario ya existe"}
+    else:
+        users_list.append(user)
+
+
+@app.put("/user/")
+async def user():
+
+
 
 def search_user(id:int):
     users = filter(lambda user: user.id == id, users_list)
@@ -53,4 +65,3 @@ def search_user(id:int):
         return list(users)[0]
     except:
         return {"error":"no se ha encontrado el usuario"}
-
