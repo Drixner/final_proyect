@@ -1,3 +1,4 @@
+"importacion del modulo fastAPI"
 from fastapi import FastAPI, HTTPException
 from pydantic import BaseModel
 
@@ -7,6 +8,7 @@ app = FastAPI()
 # entidad user
 
 class User(BaseModel):
+    " la clase User usada para definir todas las varibles y estas a la vez estan formateadas"
     id: int
     name: str
     surname: str
@@ -14,7 +16,8 @@ class User(BaseModel):
     age: int
 
 
-users_list = [User(id=1, name="Drixner", surname="Condor", url="https://drixner.github.io/myportfolio/", age=30),
+users_list = [User(id=1, name="Drixner", surname="Condor",
+            url="https://drixner.github.io/myportfolio/", age=30),
             User(id=2, name="Yngrid", surname="Barrera", url="google.com", age=24),
             User(id=3, name="Kattie", surname="Condor", url="maps.com", age=24)]
 
@@ -25,13 +28,19 @@ users_list = [User(id=1, name="Drixner", surname="Condor", url="https://drixner.
 
 @app.get("/usersjson")
 async def usersjson():
-    return [{"name":"Drixner", "surname": "Condor", "url": "https://drixner.github.io/myportfolio/", "age": 30},
-            {"name":"Yngrid", "surname": "Barrera", "url": "https://drixner.github.io/myportfolio/", "age": 23},
-            {"name":"Kattie", "surname": "Condor", "url": "https://drixner.github.io/myportfolio/", "age": 26}]
+    "--Esto es una base de datos provicional--"
+
+    return [{"name":"Drixner", "surname": "Condor",
+            "url": "https://drixner.github.io/myportfolio/", "age": 30},
+            {"name":"Yngrid", "surname": "Barrera",
+            "url": "https://drixner.github.io/myportfolio/", "age": 23},
+            {"name":"Kattie", "surname": "Condor",
+            "url": "https://drixner.github.io/myportfolio/", "age": 26}]
 
 
 @app.get("/users")
 async def users():
+    "--el portal para consultar lista de usuarios--"
     return users_list
 
 #path
@@ -46,14 +55,15 @@ async def user(id: int):
     return search_user(id)
 
 
-#   METODO POST insertar valores    
+#   METODO POST insertar valores
 @app.post("/user/", status_code=201)
 async def user(user: User):
-    if type(search_user(user.id)) == User:
+    if isinstance(search_user(user.id)) == User:
         HTTPException(status_code=204, detail="El usuario ya existe")
-        return {"Error":"El usuario ya existe"} 
-    else:
-        users_list.append(user)
+        return {"Error":"El usuario ya existe"}
+
+    users_list.append(user)
+    return user
 
 
 #   METODO PUT
@@ -61,7 +71,7 @@ async def user(user: User):
 async def user(user:User):
 
     found = False
-    
+
     for index, saved_user in enumerate(users_list):
         if saved_user.id == user.id:
             users_list[index] = user
@@ -69,19 +79,20 @@ async def user(user:User):
 
     if not found:
         return {'error': 'No se ha actualizado el usuario'}
-    else:
-        return user
-    
-    
+    return user
+
+
 # METODO DELETE
 @app.delete("/user/{id}")
 async def user(id: int):
+
     found = False
+
     for index, saved_user in enumerate(users_list):
         if saved_user.id == id:
             del users_list[index]
             found = True
-            
+
     if not found:
         return {'error': 'No se ha eliminado el usuario'}
 # <-- Check
