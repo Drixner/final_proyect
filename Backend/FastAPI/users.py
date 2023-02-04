@@ -78,15 +78,14 @@ async def user(id: int):
     return search_user(id)
 
 
-#   METODO POST insertar valores
-@app.post("/user/", status_code=201)
-async def create_user(user: User):
+#METODO POST insertar valores
+@app.post("/user/",response_model=User, status_code=201)
+async def join_user(user: User):
     """
     Crea un nuevo usuario
     """
-    if isinstance(search_user(user.id)) == User:
-        HTTPException(status_code=204, detail="El usuario ya existe")
-        return {"Error":"El usuario ya existe"}
+    if type(search_user(user.id)) == User:
+        raise HTTPException(status_code=404, detail="El usuario ya existe")
 
     users_list.append(user)
     return user
@@ -123,7 +122,6 @@ async def delete_user(id: int):
     if not found:
         return {'error': 'No se ha eliminado el usuario'}
 # <-- Check
-
 
 def search_user(id: int):
     users = filter(lambda user: user.id == id, users_list)
