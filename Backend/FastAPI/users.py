@@ -1,4 +1,6 @@
-"importacion del modulo fastAPI"
+"""
+importacion del modulo fastAPI
+"""
 from fastapi import FastAPI, HTTPException
 from pydantic import BaseModel
 
@@ -8,7 +10,9 @@ app = FastAPI()
 
 # Entidad user
 class User(BaseModel):
-    " la clase User usada para definir todas las varibles y a su vez, formateadas"
+    """
+    la clase User usada para definir todas las varibles y a su vez, formateadas
+    """
     id: int
     name: str
     surname: str
@@ -27,7 +31,6 @@ async def users_json():
     """
     Devuelve la lista de usuarios en formato JSON
     """
-
     return [
         {
             "name": "Drixner",
@@ -122,7 +125,7 @@ async def delete_user(id: int):
 # <-- Check
 
 
-def search_user(id:int):
+def search_user(id: int):
     users = filter(lambda user: user.id == id, users_list)
     try:
         return list(users)[0]
