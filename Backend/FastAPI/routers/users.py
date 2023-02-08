@@ -1,12 +1,14 @@
 """
 importacion del modulo fastAPI
 """
-from fastapi import FastAPI, HTTPException
+from fastapi import APIRouter, HTTPException
 from pydantic import BaseModel
 
-app = FastAPI()
+router = APIRouter(
+        tags=["users"]
+        )
 
-# Inicia el server: uvicorn users:app --reload
+# Inicia el server: uvicorn users:router --reload
 
 # Entidad user
 class User(BaseModel):
@@ -26,7 +28,7 @@ users_list = [User(id=1, name="Drixner", surname="Condor",
             User(id=3, name="Kattie", surname="Condor", url="maps.com", age=24)]
 
 
-@app.get("/usersjson")
+@router.get("/usersjson")
 async def users_json():
     """
     Devuelve la lista de usuarios en formato JSON
@@ -53,7 +55,7 @@ async def users_json():
     ]
 
 
-@app.get("/users")
+@router.get("/users")
 async def users():
     """
     Devuelve la lista de usuarios
@@ -61,8 +63,8 @@ async def users():
     return users_list
 
 #path
-@app.get("/user/{id}")
-async def user(id: int):
+@router.get("/user/{id}")
+async def user_list(id: int):
     """
     Devuelve un usuario por su id
     """
@@ -70,7 +72,7 @@ async def user(id: int):
 
 
 #query
-@app.get("/user/")
+@router.get("/user/")
 async def user(id: int):
     """
     Devuelve un usuario por su id
@@ -79,7 +81,7 @@ async def user(id: int):
 
 
 #METODO POST insertar valores
-@app.post("/user/",response_model=User, status_code=201)
+@router.post("/user/",response_model=User, status_code=201)
 async def join_user(user: User):
     """
     Crea un nuevo usuario
@@ -92,7 +94,7 @@ async def join_user(user: User):
 
 
 #   METODO PUT
-@app.put("/user/")
+@router.put("/user/")
 async def update_user(user: User):
     """
     Actualiza un usuario existente
@@ -109,7 +111,7 @@ async def update_user(user: User):
 
 
 # METODO DELETE
-@app.delete("/user/{id}")
+@router.delete("/user/{id}")
 async def delete_user(id: int):
     """
     Elimina un usuario existente
