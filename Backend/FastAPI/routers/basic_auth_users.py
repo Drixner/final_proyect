@@ -46,12 +46,22 @@ users_db = {
     }
 }
 
-def search_user(username: str):
+def search_user_db(username: str):
     """
     para la busqueda del usuario
     """
     if username in users_db:
         return UserDB(**users_db[username])
+
+
+def search_user(username: str):
+    """
+    para la busqueda del usuario
+    """
+    if username in users_db:
+        return User(**users_db[username])
+
+
 
 async def current_user(token: str = Depends(oauth2)):
     """
@@ -63,6 +73,11 @@ async def current_user(token: str = Depends(oauth2)):
                 status_code=status.HTTP_401_UNAUTHORIZED,
                 detail="Credenciales de autorizacion invalidas",
                 headers={"WWW-authenticate":"bearer"})
+
+    if user.disabled:
+        raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="Usuario deshabilitado")
     return user
 
 
@@ -76,12 +91,12 @@ async def login(form: OAuth2PasswordRequestForm = Depends()):
     user_db = users_db.get(form.username)
     if not user_db:
         raise HTTPException(
-                status_code=status.HTTP_404_NOT_FOUND, detail="El usuario no es correctdo")
+                status_code=status.HTTP_400_BAD_REQUEST, detail="El usuario no es correctdo")
 
-    user = search_user(form.username)
+    user = search_user_db(form.username)
     if not form.password == user.password:
         raise HTTPException(
-                status_code=status.HTTP_404_NOT_FOUND, detail="La contraseña no es correcta")
+                status_code=status.HTTP_400_BAD_REQUEST, detail="La contraseña no es correcta")
 
     return {"access_token": user.username, "token_type": "bearer"}
 
@@ -94,3 +109,6 @@ async def read_users_me(user: User = Depends(current_user)):
     funcion para leer el usuario
     """
     return user
+
+
+
