@@ -4,18 +4,19 @@ inicializacion de la autenticacion basica
 from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
 from fastapi import FastAPI,Depends, HTTPException, status
 from pydantic import BaseModel
-from jose import jwt
-from paslib.context import CryptContext
+import jwt
+from passlib.context import CryptContext
+from datetime import datetime, timedelta
 
 
 ALGORITHM = "HS256"  #algoritmo de encriptacion
+ACCESS_TOKEN_EXPIRE_MINUTES = 1  #tiempo de expiracion del token
 
 app = FastAPI()  #inicializacion de la aplicacion
 
 oauth2 = OAuth2PasswordBearer(tokenUrl="login")  #inicializacion de la autenticacion basica
-
-crypt = 
-
+ 
+crypt_context = CryptContext(schemes=["bcrypt"], deprecated="auto") #inicializacion de la encriptacion
 
 class User(BaseModel):
     """
@@ -39,7 +40,7 @@ users_db = {
         "full_name" : "Drixner Condor",
         "email" : "drixner@gmail.com",
         "disabled": False,
-        "password": "123drix",
+        "password": "$2a$12$7m69MFJTcO3YGuJomhrk7OP5k8qE5bo3CJpHlrlyv/IRhIFV0YczS",
     },
 
     "Yngrid": {
@@ -47,12 +48,12 @@ users_db = {
         "full_name" : "Yngrid Barrera",
         "email" : "titi@gmail.com",
         "disabled": True,
-        "password": "123titi",
+        "password": "$2a$12$INAWqVuTvEzJIhBRbl.KROThkwPhwpZBHp/RAx7E.Dl88Lg8/I9/e",
     }
 }
 
 
-def search_user_db(username: str):
+def search_user_db(username: str): #para la busqueda del usuarios
     """
     para la busqueda del usuario
     """
@@ -73,8 +74,14 @@ async def login(form: OAuth2PasswordRequestForm = Depends()):
                 status_code=status.HTTP_400_BAD_REQUEST, detail="El usuario no es correctdo")
 
     user = search_user_db(form.username)
-    if not form.password == user.password:
+
+
+    if not crypt_context.verify(form.password, user.password):
         raise HTTPException(
                 status_code=status.HTTP_400_BAD_REQUEST, detail="La contraseña no es correcta")
 
-    return {"access_token": user.username, "token_type": "bearer"}
+
+    access_token = {"sub": user.username,
+                    "exp": datetime.utcnow() + timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)}
+
+    return {"access_token": access_token, "token_type": "bearer"}
