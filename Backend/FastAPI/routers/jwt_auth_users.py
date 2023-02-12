@@ -2,7 +2,7 @@
 inicializacion de la autenticacion basica
 """
 from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
-from fastapi import FastAPI, Depends, HTTPException, status
+from fastapi import APIRouter, Depends, HTTPException, status
 from pydantic import BaseModel
 from jose import jwt, JWTError
 from passlib.context import CryptContext
@@ -13,7 +13,7 @@ ALGORITHM = "HS256"  #algoritmo de encriptacion
 ACCESS_TOKEN_EXPIRE_MINUTES = 1  #tiempo de expiracion del token
 SECRET="13d6c7dc98ffcb88114e8b72401b6b03dd96a151346b1a71c90a24d97e603095"  #clave secreta
 
-app = FastAPI()  #inicializacion de la aplicacion
+router = APIRouter()  #inicializacion del router
 
 oauth2 = OAuth2PasswordBearer(tokenUrl="login")  #inicializacion de la autenticacion basica
  
@@ -107,7 +107,7 @@ async def current_user(user : User = Depends(auth_user)):
 
 
 
-@app.post("/login")
+@router.post("/login")
 async def login(form: OAuth2PasswordRequestForm = Depends()):
     """
     funcion para autenticar al usuario
@@ -131,7 +131,7 @@ async def login(form: OAuth2PasswordRequestForm = Depends()):
     return {"access_token": jwt.encode(access_token, SECRET,algorithm=ALGORITHM), "token_type": "bearer"}
 
 
-@app.get("/users/me")
+@router.get("/users/me")
 async def read_users_me(user: User = Depends(current_user)):
     """
     funcion para leer el usuario
