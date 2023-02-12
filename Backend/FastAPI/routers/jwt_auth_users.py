@@ -2,9 +2,9 @@
 inicializacion de la autenticacion basica
 """
 from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
-from fastapi import FastAPI,Depends, HTTPException, status
+from fastapi import FastAPI, Depends, HTTPException, status
 from pydantic import BaseModel
-import jwt
+from jose import jwt, JWTError
 from passlib.context import CryptContext
 from datetime import datetime, timedelta
 
@@ -54,28 +54,51 @@ users_db = {
 }
 
 
-def search_user_db(username: str): #para la busqueda del usuarios
+def search_user_db(username: str):
     """
     para la busqueda del usuario
     """
     if username in users_db:
         return UserDB(**users_db[username])
 
-async def auth_user(token: str):
+
+def search_user(username: str):
+    """
+    para la busqueda del usuario
+    """
+    if username in users_db:
+        return UserDB(**users_db[username])
 
 
-#funcion 
-async def current_user(token: str = Depends(oauth2)):
+
+
+async def auth_user(token: str = Depends(oauth2)):
+
+    exceptions = HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Credenciales de autorizacion invalidas",
+            headers={"WWW-authenticate":"bearer"}
+            )
+
+
+    try:
+        username = jwt.decode(token, SECRET, algorithms=[ALGORITHM]).get("sub")
+        if username is None:
+            raise exceptions
+
+
+
+    except JWTError:
+        raise exceptions
+
+
+    return search_user(username)
+
+
+async def current_user(user : User = Depends(auth_user)):
     """
     funcion para el usuario actual
     """
-    user = search_user(token)
-    if not user:
-        raise HTTPException(
-                status_code=status.HTTP_401_UNAUTHORIZED,
-                detail="Credenciales de autorizacion invalidas",
-                headers={"WWW-authenticate":"bearer"})
-
     if user.disabled:
         raise HTTPException(
                 status_code=status.HTTP_400_BAD_REQUEST,
