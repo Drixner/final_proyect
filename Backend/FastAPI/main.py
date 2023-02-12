@@ -5,7 +5,7 @@ inciando con fastapi con importaciones
 # así como dos archivos de rutas llamados "products" y "users".
 from fastapi.staticfiles import StaticFiles
 from fastapi import FastAPI
-from routers import products, users
+from routers import products, users, basic_auth_users, jwt_auth_users
 
 # Crea una instancia de la clase FastAPI y la asigna a la variable "app".
 app = FastAPI()
@@ -13,6 +13,10 @@ app = FastAPI()
 # Incluye dos routers en la aplicación FastAPI.
 app.include_router(products.router)
 app.include_router(users.router)
+app.include_router(basic_auth_users.router)
+app.include_router(jwt_auth_users.router)
+
+
 
 # Monta una ruta estática para acceder a los archivos estáticos en la carpeta "static".
 app.mount("/static", StaticFiles(directory="static"), name="static")
