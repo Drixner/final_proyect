@@ -2,12 +2,11 @@
 inicializacion de la autenticacion basica
 """
 from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
-from fastapi import FastAPI,Depends, HTTPException, Header, status
+from fastapi import APIRouter, Depends, HTTPException, Header, status
 from pydantic import BaseModel
 
+router = APIRouter()
 
-
-app = FastAPI()
 
 oauth2 = OAuth2PasswordBearer(tokenUrl="login")
 
@@ -83,7 +82,7 @@ async def current_user(token: str = Depends(oauth2)):
 
 
 
-@app.post("/login")
+@router.post("/login")
 async def login(form: OAuth2PasswordRequestForm = Depends()):
     """
     funcion para autenticar al usuario
@@ -103,7 +102,7 @@ async def login(form: OAuth2PasswordRequestForm = Depends()):
 
 
 
-@app.get("/users/me")
+@router.get("/users/me")
 async def read_users_me(user: User = Depends(current_user)):
     """
     funcion para leer el usuario
