@@ -109,5 +109,3 @@ async def read_users_me(user: User = Depends(current_user)):
     """
     return user
 
-
-
