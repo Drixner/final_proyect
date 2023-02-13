@@ -37,4 +37,3 @@ async def url():
     """
     return {"url":"https://drixner.github.io/myportfolio/"}
 
-
