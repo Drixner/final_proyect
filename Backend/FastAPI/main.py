@@ -10,7 +10,7 @@ from routers import products, users, basic_auth_users, jwt_auth_users
 # Crea una instancia de la clase FastAPI y la asigna a la variable "app".
 app = FastAPI()
 
-# Incluye dos routers en la aplicación FastAPI.
+# Incluye las rutas de los archivos "products", "users", "basic_auth_users" y "jwt_auth_users". 
 app.include_router(products.router)
 app.include_router(users.router)
 app.include_router(basic_auth_users.router)
