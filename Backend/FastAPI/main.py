@@ -17,7 +17,6 @@ app.include_router(basic_auth_users.router)
 app.include_router(jwt_auth_users.router)
 
 
-
 # Monta una ruta estática para acceder a los archivos estáticos en la carpeta "static".
 app.mount("/static", StaticFiles(directory="static"), name="static")
 
