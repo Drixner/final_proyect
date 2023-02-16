@@ -14,11 +14,11 @@ ACCESS_TOKEN_EXPIRE_MINUTES = 1  #tiempo de expiracion del token
 SECRET="13d6c7dc98ffcb88114e8b72401b6b03dd96a151346b1a71c90a24d97e603095"  #clave secreta
 
 router = APIRouter()  #inicializacion del router
-
 oauth2 = OAuth2PasswordBearer(tokenUrl="login")  #inicializacion de la autenticacion basica
- 
 crypt_context = CryptContext(schemes=["bcrypt"], deprecated="auto") #inicializacion de la encriptacion
 
+
+# Clase para el usuario
 class User(BaseModel):
     """
     Clase para el usuario
@@ -28,6 +28,8 @@ class User(BaseModel):
     email: str
     disabled: bool
 
+
+# Clase para la base de datos de usuarios
 class UserDB(User):
     """
     Clase para la base de datos de usuarios, que vela por la contrasena
@@ -35,6 +37,7 @@ class UserDB(User):
     password: str
 
 
+# base de datos de usuarios
 users_db = {
     "drixner": {
         "username" : "drixner",
@@ -62,6 +65,7 @@ def search_user_db(username: str):
         return UserDB(**users_db[username])
 
 
+# funcion para la encriptacion de la contrasena 
 def search_user(username: str):
     """
     para la busqueda del usuario
@@ -70,8 +74,7 @@ def search_user(username: str):
         return UserDB(**users_db[username])
 
 
-
-
+# funcion para la encriptacion de la contrasena
 async def auth_user(token: str = Depends(oauth2)):
 
     exceptions = HTTPException(
@@ -80,21 +83,18 @@ async def auth_user(token: str = Depends(oauth2)):
             headers={"WWW-authenticate":"bearer"}
             )
 
-
     try:
         username = jwt.decode(token, SECRET, algorithms=[ALGORITHM]).get("sub")
         if username is None:
             raise exceptions
 
-
-
     except JWTError:
         raise exceptions
-
 
     return search_user(username)
 
 
+# funcion para el usuario actual
 async def current_user(user : User = Depends(auth_user)):
     """
     funcion para el usuario actual
@@ -106,7 +106,7 @@ async def current_user(user : User = Depends(auth_user)):
     return user
 
 
-
+# funcion para la autenticacion del usuario
 @router.post("/login")
 async def login(form: OAuth2PasswordRequestForm = Depends()):
     """
@@ -116,21 +116,19 @@ async def login(form: OAuth2PasswordRequestForm = Depends()):
     if not user_db:
         raise HTTPException(
                 status_code=status.HTTP_400_BAD_REQUEST, detail="El usuario no es correctdo")
-
     user = search_user_db(form.username)
-
 
     if not crypt_context.verify(form.password, user.password):
         raise HTTPException(
                 status_code=status.HTTP_400_BAD_REQUEST, detail="La contraseña no es correcta")
-
-
+ 
     access_token = {"sub": user.username,
                     "exp": datetime.utcnow() + timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)}
 
     return {"access_token": jwt.encode(access_token, SECRET,algorithm=ALGORITHM), "token_type": "bearer"}
 
 
+# funcion para leer el usuario
 @router.get("/users/me")
 async def read_users_me(user: User = Depends(current_user)):
     """
